@@ -9,7 +9,7 @@
 	<h3>The number of the model goes here : {{myMLObject.modelname}}<h3>
 	<h3>The name of the model goes here : {{myMLObject.parameters}}<h3>
 	<h3>The params of the model goes here : {{myMLObject.weights}}<h3>
-	<h3>The metrics of the model goes here : {{myMLObject.metrics}}<h3>
+	<h3>The metrics of the model goes here : {{myMLObject.modelmetrics}}<h3>
 	
 	<h3>The ID of the user is : {{myUserObject.userID}}<h3>
 	<h3>The name of the user is : {{myUserObject.username}}<h3>
@@ -20,9 +20,58 @@
 	<h3>The name of the model goes here : {{testdbobject.traineddata}}<h3>
 	<h3>The params of the model goes here : {{testdbobject.validationdata}}<h3>
 	
+	<div class = "centertable">
+		<table class="styled-table">
+    		{% if modeltype == "Classification" %}
+    		<thead>
+        		<tr>
+            			<th>Performance Metrics - Classification</th>
+            			<th>Points</th>
+        		</tr>
+    		</thead>
+    		<tbody>
+        		<tr class="active-row">
+            			<td>Accuracy</td>
+            			<td>{{model_accuracy}}</td>
+        		</tr>
+        		<tr>
+            			<td>F1 Score</td>
+            			<td>{{model_f1_score}}</td>
+        		</tr>
+        		<tr>
+            			<td>Precision</td>
+            			<td>{{model_precision}}</td>
+        		</tr>
+        		<tr>
+            			<td>Recall</td>
+            			<td>{{model_recall}}</td>
+        		</tr>
+    		</tbody>
+    		{% else %}
+    		<thead>
+        		<tr>
+            			<th>Performance Metrics - Regression</th>
+            			<th>Points</th>
+        		</tr>
+        		
+    		</thead>
+    		<tbody>
+        		<tr>
+            			<td>RMSE Score</td>
+            			<td>{{model_rmse}}</td>
+        		</tr>
+        		<tr class="active-row">
+            			<td>R2 Score</td>
+            			<td>{{model_r2score}}</td>
+        		</tr>
+    		</tbody>
+    		{% endif %}
+		</table>	
+	</div>
+	
 	<div class="form">
 		<form action="/second" method="POST">
-			<input type="submit" value="Add to DB">
+			<input class="button button1" type="submit" value="Add to DB">
 		</form>
 	</div>
 

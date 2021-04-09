@@ -1,5 +1,15 @@
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
+from sklearn import metrics
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier 
+from sklearn.model_selection import train_test_split 
+
+import pandas as pd
+import numpy as np
 import requests
 import random
 import pickle
@@ -45,12 +55,12 @@ class TrainedModelsDB(db.Model):
 	modelname=db.Column(db.String(100),primary_key=True,nullable=False)
 	parameters=db.Column(db.String(100),nullable=False)
 	weights=db.Column(db.String(100))
-	metrics=db.Column(db.String(100))
-	def __init__(self,modelname,parameters,weights,metrics):
+	modelmetrics=db.Column(db.String(100))
+	def __init__(self,modelname,parameters,weights,modelmetrics):
 		self.modelname=modelname
 		self.parameters=parameters
 		self.weights=weights
-		self.metrics=metrics
+		self.modelmetrics=modelmetrics
 
 class DataDB(db.Model):
 	__bind_key__='datadb'
@@ -67,28 +77,55 @@ myUserObject=UserDB(15,"UserTheGreat","PasswordTheStrong")
 myMLObject=TrainedModelsDB("KNN","Params","Weights","Metrics")
 
 	
-infile = open('pickle_folder/modelnb.pkl','rb')
-new_dict = pickle.load(infile)
+infile = open('pickle_folder/modellr.pkl','rb')
+model_classifier = pickle.load(infile)
 infile.close()
-#type(new_dict)
-testdbobject=DataDB(45,new_dict,new_dict)
+#type(model_classifier)
+testdbobject=DataDB(45,model_classifier,model_classifier)
+
+
+X_train=pd.read_csv('csvfiles/dftraincls.csv')
+X_test=pd.read_csv('csvfiles/dftestcls.csv')
+Y_train=pd.read_csv('csvfiles/ytraincls.csv')
+Y_test=pd.read_csv('csvfiles/ytestcls.csv')
+
+modeltype="Regression" #Give Classification Or Regression
+if modeltype=="Classification":
+	y_pred=model_classifier.predict(X_train)
+	model_accuracy=metrics.accuracy_score(Y_train,y_pred)
+	model_f1_score=metrics.f1_score(Y_train,y_pred)
+	model_precision=metrics.precision_score(Y_train,y_pred)
+	model_recall=metrics.recall_score(Y_train,y_pred)
+elif modeltype=="Regression":
+	y_pred=model_classifier.predict(X_train)
+	model_rmse=model_classifier.metrics.mean_squared_error(Y_train,y_pred)
+	model_r2score=model_classifier.metrics.r2_score(Y_train,y_pred)
 
 @app.route("/")
 def myfunction():
-	return render_template("index.html",myUserObject=myUserObject,myMLObject=myMLObject,testdbobject=testdbobject)
+	return render_template("index.html",myUserObject=myUserObject,myMLObject=myMLObject,testdbobject=testdbobject,modeltype=modeltype,model_accuracy=model_accuracy,model_f1_score=model_f1_score,model_precision=model_precision,model_recall=model_recall,model_rmse=model_rmse,model_r2score=model_r2score)
 
 @app.route('/second',methods=['POST'])
 def secondfunction():
-	myUserObject=UserDB(1568,"UserTheGreat","PasswordTheStrong")
+	'''myUserObject=UserDB(9999,"User","Pwd")
 	db.session.add(myUserObject)
 	db.session.commit()
-	myMLObject=TrainedModelsDB("RandomForest2","Params","Weights","Metrics")
+	
+	myMLObject=TrainedModelsDB("RF3","Params2","Weights2","Metrics2")
 	db.session.add(myMLObject)
 	db.session.commit()
-	testdbobject=DataDB(454,new_dict,new_dict)
+	
+	testdbobject=DataDB(4545454,model_classifier,model_classifier)
 	db.session.add(testdbobject)
 	db.session.commit()
-	return "This is the second page"
+	
+	myprojectobject=ProjectsDB(4545,45,'KNN Pickle',model_classifier)
+	db.session.add(myprojectobject)
+	db.session.commit()
+	'''
+	testobjectshowUserDB=ProjectsDB.query.get_or_404(4545)
+	
+	return f"This is the second page {testobjectshowUserDB.projectID} and now I'll show the pickle stuff {testobjectshowUserDB.projectdata}"
 
 
 
