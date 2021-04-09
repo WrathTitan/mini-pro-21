@@ -90,16 +90,16 @@ Y_train=pd.read_csv('csvfiles/ytraincls.csv')
 Y_test=pd.read_csv('csvfiles/ytestcls.csv')
 
 modeltype="Regression" #Give Classification Or Regression
-if modeltype=="Classification":
-	y_pred=model_classifier.predict(X_train)
-	model_accuracy=metrics.accuracy_score(Y_train,y_pred)
-	model_f1_score=metrics.f1_score(Y_train,y_pred)
-	model_precision=metrics.precision_score(Y_train,y_pred)
-	model_recall=metrics.recall_score(Y_train,y_pred)
-elif modeltype=="Regression":
-	y_pred=model_classifier.predict(X_train)
-	model_rmse=model_classifier.metrics.mean_squared_error(Y_train,y_pred)
-	model_r2score=model_classifier.metrics.r2_score(Y_train,y_pred)
+#if modeltype=="Classification":
+y_pred=model_classifier.predict(X_train)
+model_accuracy=metrics.accuracy_score(Y_train,y_pred.round())
+model_f1_score=metrics.f1_score(Y_train,y_pred.round())
+model_precision=metrics.precision_score(Y_train,y_pred.round())
+model_recall=metrics.recall_score(Y_train,y_pred.round())
+#elif modeltype=="Regression":
+y_pred=model_classifier.predict(X_train)
+model_rmse=metrics.mean_squared_error(Y_train,y_pred)
+model_r2score=metrics.r2_score(Y_train,y_pred)
 
 @app.route("/")
 def myfunction():
